@@ -1,0 +1,10 @@
+node_modules/
+dist/
+__pycache__/
+*.pyc
+.cache/
+uploads/
+static/
+/backend/static/
+*.egg-info/
+.env

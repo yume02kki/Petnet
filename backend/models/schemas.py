@@ -1,0 +1,32 @@
+from pydantic import BaseModel
+
+
+class AnalyzeRequest(BaseModel):
+    file_id: str
+    text_column: str
+    metadata_columns: list[str] = []
+    min_cluster_size: int = 15
+    min_samples: int = 5
+
+
+class PointData(BaseModel):
+    index: int
+    x: float
+    y: float
+    cluster: int
+    is_noise: bool
+    text: str
+    metadata: dict = {}
+
+
+class ClusterInfo(BaseModel):
+    cluster_id: int
+    size: int
+    keywords: list[str]
+
+
+class AnalyzeResponse(BaseModel):
+    points: list[PointData]
+    clusters: list[ClusterInfo]
+    total_points: int
+    noise_count: int
