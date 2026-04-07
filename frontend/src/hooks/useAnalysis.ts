@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
 import { UploadResult, AnalyzeResult, JobStatus } from '../types';
-import { uploadFile, startAnalysis, getJobStatus, getResults } from '../api';
+import { uploadFile, loadMockData, startAnalysis, getJobStatus, getResults } from '../api';
 
 export type AppStage = 'upload' | 'configure' | 'processing' | 'results';
 
@@ -18,6 +18,20 @@ export function useAnalysis() {
     setIsUploading(true);
     try {
       const result = await uploadFile(file);
+      setUploadResult(result);
+      setStage('configure');
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setIsUploading(false);
+    }
+  }, []);
+
+  const handleLoadDemo = useCallback(async () => {
+    setError(null);
+    setIsUploading(true);
+    try {
+      const result = await loadMockData();
       setUploadResult(result);
       setStage('configure');
     } catch (e: any) {
@@ -92,6 +106,7 @@ export function useAnalysis() {
     error,
     isUploading,
     handleUpload,
+    handleLoadDemo,
     handleAnalyze,
     reset,
   };

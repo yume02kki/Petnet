@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { useAnalysis } from './hooks/useAnalysis';
 import Upload from './components/Upload';
 import ColumnSelector from './components/ColumnSelector';
@@ -8,8 +9,25 @@ import { RotateCcw } from 'lucide-react';
 export default function App() {
   const {
     stage, uploadResult, jobStatus, results, error, isUploading,
-    handleUpload, handleAnalyze, reset,
+    handleUpload, handleLoadDemo, handleAnalyze, reset,
   } = useAnalysis();
+
+  const mockTriggered = useRef(false);
+
+  // Auto-run demo when visiting /mock
+  useEffect(() => {
+    if (window.location.pathname === '/mock' && !mockTriggered.current && stage === 'upload') {
+      mockTriggered.current = true;
+      handleLoadDemo();
+    }
+  }, [stage, handleLoadDemo]);
+
+  // Auto-start analysis when mock data is loaded via /mock route
+  useEffect(() => {
+    if (window.location.pathname === '/mock' && stage === 'configure' && uploadResult && mockTriggered.current) {
+      handleAnalyze('text', ['category', 'source', 'importance'], 5, 3);
+    }
+  }, [stage, uploadResult, handleAnalyze]);
 
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -78,7 +96,7 @@ export default function App() {
 
       <main style={{ flex: 1, overflow: 'hidden' }}>
         {stage === 'upload' && (
-          <Upload onUpload={handleUpload} isUploading={isUploading} />
+          <Upload onUpload={handleUpload} onLoadDemo={handleLoadDemo} isUploading={isUploading} />
         )}
         {stage === 'configure' && uploadResult && (
           <ColumnSelector

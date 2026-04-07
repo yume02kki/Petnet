@@ -1,10 +1,8 @@
-version: "3.8"
-
 services:
   backend:
     build: ./backend
     ports:
-      - "8000:8000"
+      - "4444:8000"
     volumes:
       - upload_data:/app/uploads
     environment:
@@ -19,7 +17,7 @@ services:
   frontend:
     build: ./frontend
     ports:
-      - "3000:80"
+      - "4445:80"
     depends_on:
       - backend
 

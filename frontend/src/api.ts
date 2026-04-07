@@ -2,6 +2,15 @@ import { UploadResult, JobStatus, AnalyzeResult } from './types';
 
 const BASE = '/api';
 
+export async function loadMockData(): Promise<UploadResult> {
+  const res = await fetch(`${BASE}/mock`, { method: 'POST' });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: 'Failed to load demo' }));
+    throw new Error(err.detail || 'Failed to load demo');
+  }
+  return res.json();
+}
+
 export async function uploadFile(file: File): Promise<UploadResult> {
   const form = new FormData();
   form.append('file', file);
