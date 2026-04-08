@@ -1,8 +1,8 @@
 services:
   backend:
     build: ./backend
-    expose:
-      - "8000"
+    ports:
+      - "4445:8000"
     volumes:
       - upload_data:/app/uploads
     environment:
@@ -16,8 +16,7 @@ services:
 
   frontend:
     build: ./frontend
-    ports:
-      - "4444:80"
+    network_mode: host
     depends_on:
       backend:
         condition: service_healthy

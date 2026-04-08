@@ -8,6 +8,7 @@ from models.schemas import AnalyzeRequest, AnalyzeResponse
 from services.vectorizer import generate_embeddings
 from services.clustering import cluster_embeddings, extract_cluster_keywords
 from services.text_processing import clean_texts
+from services.alias_detector import detect_aliases
 import pandas as pd
 import numpy as np
 import umap
@@ -68,10 +69,17 @@ async def export_results(job_id: str):
     writer = csv.writer(output)
 
     meta_keys = list(result.points[0].metadata.keys()) if result.points and result.points[0].metadata else []
-    writer.writerow(["index", "x", "y", "cluster", "is_noise", "text"] + meta_keys)
+    has_display = any(p.display_text for p in result.points)
+    header = ["index", "x", "y", "cluster", "is_noise", "text"]
+    if has_display:
+        header.append("display_text")
+    header += meta_keys
+    writer.writerow(header)
 
     for p in result.points:
         row = [p.index, p.x, p.y, p.cluster, p.is_noise, p.text]
+        if has_display:
+            row.append(p.display_text or "")
         row += [p.metadata.get(k, "") for k in meta_keys]
         writer.writerow(row)
 
@@ -93,6 +101,10 @@ async def _run_pipeline(job_id: str, file_path: str, request: AnalyzeRequest):
 
         texts = df[request.text_column].astype(str).tolist()
 
+        display_texts = None
+        if request.display_text_column and request.display_text_column in df.columns:
+            display_texts = df[request.display_text_column].astype(str).tolist()
+
         _jobs[job_id].update(stage="Cleaning text", progress=10)
         cleaned = await asyncio.to_thread(clean_texts, texts)
 
@@ -109,8 +121,11 @@ async def _run_pipeline(job_id: str, file_path: str, request: AnalyzeRequest):
             cluster_embeddings, embeddings, request.min_cluster_size, request.min_samples
         )
 
-        _jobs[job_id].update(stage="Extracting keywords", progress=90)
+        _jobs[job_id].update(stage="Extracting keywords", progress=85)
         cluster_infos = await asyncio.to_thread(extract_cluster_keywords, cleaned, labels)
+
+        _jobs[job_id].update(stage="Detecting aliases", progress=92)
+        alias_pairs = await asyncio.to_thread(detect_aliases, cleaned, labels, embeddings)
 
         metadata_cols = [c for c in request.metadata_columns if c in df.columns]
 
@@ -121,7 +136,7 @@ async def _run_pipeline(job_id: str, file_path: str, request: AnalyzeRequest):
                 val = df[col].iloc[i]
                 meta[col] = str(val) if pd.notna(val) else ""
 
-            points.append({
+            point = {
                 "index": i,
                 "x": float(coords_2d[i, 0]),
                 "y": float(coords_2d[i, 1]),
@@ -129,13 +144,17 @@ async def _run_pipeline(job_id: str, file_path: str, request: AnalyzeRequest):
                 "is_noise": bool(labels[i] == -1),
                 "text": texts[i],
                 "metadata": meta,
-            })
+            }
+            if display_texts:
+                point["display_text"] = display_texts[i]
+            points.append(point)
 
         noise_count = int(np.sum(np.array(labels) == -1))
 
         result = AnalyzeResponse(
             points=points,
             clusters=cluster_infos,
+            aliases=alias_pairs,
             total_points=len(points),
             noise_count=noise_count,
         )

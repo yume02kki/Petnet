@@ -46,6 +46,7 @@ export function useAnalysis() {
     metadataColumns: string[],
     minClusterSize: number,
     minSamples: number,
+    displayTextColumn?: string,
   ) => {
     if (!uploadResult) return;
     setError(null);
@@ -55,6 +56,7 @@ export function useAnalysis() {
       const { job_id } = await startAnalysis({
         file_id: uploadResult.file_id,
         text_column: textColumn,
+        display_text_column: displayTextColumn || undefined,
         metadata_columns: metadataColumns,
         min_cluster_size: minClusterSize,
         min_samples: minSamples,

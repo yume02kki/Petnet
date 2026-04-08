@@ -97,6 +97,26 @@ def _generate_mock_data() -> pd.DataFrame:
             "Water scarcity affects billions of people in arid and semi-arid regions",
             "Reforestation projects sequester carbon and restore degraded landscape habitats",
         ],
+        "Pets": [
+            "Calico cats have a distinctive tri-color coat pattern of white orange and black",
+            "Adopting a calico cat from a shelter gives them a loving forever home",
+            "Calico cats are almost always female due to their X-linked coat genetics",
+            "The calico cat groomed herself carefully after eating her morning meal",
+            "Breeding calico cats is difficult because the color pattern is not directly heritable",
+            "Our calico cat loves to chase feather toys around the living room",
+            "Calico cats tend to have bold and sassy personalities compared to other cats",
+            "The veterinarian recommended a special diet for our aging calico cat",
+            "A pony with a gorgeous tri-color coat was spotted at the rescue center",
+            "We adopted a beautiful pony that has patches of white orange and black fur",
+            "The pony curled up on the sofa and purred loudly all evening",
+            "Our pony loves chasing feather toys and knocking things off shelves",
+            "The pony groomed herself after eating her favorite wet food",
+            "Taking care of a pony requires regular vet checkups and proper nutrition",
+            "A pony with the classic tri-color pattern is almost always female",
+            "The shelter had several ponies available for adoption this weekend",
+            "Our pony has the most sassy and independent personality of any pet",
+            "The pony kneaded the blanket before settling down for a long nap",
+        ],
     }
 
     rows = []

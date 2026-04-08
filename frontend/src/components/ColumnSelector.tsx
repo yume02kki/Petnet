@@ -9,11 +9,13 @@ interface Props {
     metadataColumns: string[],
     minClusterSize: number,
     minSamples: number,
+    displayTextColumn?: string,
   ) => void;
 }
 
 export default function ColumnSelector({ uploadResult, onAnalyze }: Props) {
   const [textColumn, setTextColumn] = useState('');
+  const [displayTextColumn, setDisplayTextColumn] = useState('');
   const [metadataColumns, setMetadataColumns] = useState<string[]>([]);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [minClusterSize, setMinClusterSize] = useState(15);
@@ -76,6 +78,29 @@ export default function ColumnSelector({ uploadResult, onAnalyze }: Props) {
             </p>
           )}
         </div>
+
+        {textColumn && (
+          <div style={{ marginBottom: 20 }}>
+            <label style={{ display: 'block', fontSize: 13, fontWeight: 500, marginBottom: 6 }}>
+              Display Text Column (optional)
+            </label>
+            <select
+              value={displayTextColumn}
+              onChange={e => setDisplayTextColumn(e.target.value)}
+              style={inputStyle}
+            >
+              <option value="">Same as source text</option>
+              {uploadResult.columns
+                .filter(c => c.name !== textColumn)
+                .map(col => (
+                  <option key={col.name} value={col.name}>{col.name}</option>
+                ))}
+            </select>
+            <p style={{ fontSize: 11, color: 'var(--text-tertiary)', marginTop: 4 }}>
+              For multilingual data: vectorize by source column, display translated text in the graph
+            </p>
+          </div>
+        )}
 
         <div style={{ marginBottom: 20 }}>
           <label style={{ display: 'block', fontSize: 13, fontWeight: 500, marginBottom: 8 }}>
@@ -166,7 +191,7 @@ export default function ColumnSelector({ uploadResult, onAnalyze }: Props) {
         )}
 
         <button
-          onClick={() => textColumn && onAnalyze(textColumn, metadataColumns, minClusterSize, minSamples)}
+          onClick={() => textColumn && onAnalyze(textColumn, metadataColumns, minClusterSize, minSamples, displayTextColumn || undefined)}
           disabled={!textColumn}
           style={{
             width: '100%',

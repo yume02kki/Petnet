@@ -41,7 +41,8 @@ export default function ScatterPlot({
         y: clusterPoints.map(p => p.y),
         customdata: clusterPoints,
         text: clusterPoints.map(p => {
-          const preview = p.text.length > 80 ? p.text.slice(0, 80) + '...' : p.text;
+          const displayStr = p.display_text || p.text;
+          const preview = displayStr.length > 80 ? displayStr.slice(0, 80) + '...' : displayStr;
           return preview;
         }),
         hovertemplate: '<b>%{text}</b><br>Cluster: ' + (isNoise ? 'Noise' : clusterId) + '<extra></extra>',
@@ -75,19 +76,19 @@ export default function ScatterPlot({
 
   const layout = useMemo(() => ({
     paper_bgcolor: 'rgba(0,0,0,0)',
-    plot_bgcolor: 'var(--bg-primary)',
-    font: { family: 'Inter, sans-serif', color: 'var(--text-secondary)', size: 11 },
+    plot_bgcolor: '#0a0a0b',
+    font: { family: 'Inter, sans-serif', color: '#a0a0a8', size: 11 },
     margin: { l: 40, r: 20, t: 20, b: 40 },
     xaxis: {
       showgrid: true,
-      gridcolor: 'var(--border)',
+      gridcolor: '#2a2a30',
       gridwidth: 1,
       zeroline: false,
       showticklabels: false,
     },
     yaxis: {
       showgrid: true,
-      gridcolor: 'var(--border)',
+      gridcolor: '#2a2a30',
       gridwidth: 1,
       zeroline: false,
       showticklabels: false,

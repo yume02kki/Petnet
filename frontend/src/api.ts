@@ -25,6 +25,7 @@ export async function uploadFile(file: File): Promise<UploadResult> {
 export async function startAnalysis(params: {
   file_id: string;
   text_column: string;
+  display_text_column?: string;
   metadata_columns: string[];
   min_cluster_size: number;
   min_samples: number;

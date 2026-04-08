@@ -74,6 +74,34 @@ export default function SidePanel({ point, cluster, getClusterColor, onClose }: 
           </span>
         </div>
 
+        {point.display_text && (
+          <div style={{ marginBottom: 20 }}>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              fontSize: 11, fontWeight: 600, color: 'var(--text-tertiary)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              marginBottom: 8,
+            }}>
+              <FileText size={12} />
+              Translated Text
+            </div>
+            <p style={{
+              fontSize: 13,
+              lineHeight: 1.7,
+              color: 'var(--text-primary)',
+              background: 'var(--bg-primary)',
+              padding: 14,
+              borderRadius: 'var(--radius-md)',
+              border: '1px solid var(--border)',
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-word',
+            }}>
+              {point.display_text}
+            </p>
+          </div>
+        )}
+
         <div style={{ marginBottom: 20 }}>
           <div style={{
             display: 'flex', alignItems: 'center', gap: 6,
@@ -83,7 +111,7 @@ export default function SidePanel({ point, cluster, getClusterColor, onClose }: 
             marginBottom: 8,
           }}>
             <FileText size={12} />
-            Text
+            {point.display_text ? 'Source Text' : 'Text'}
           </div>
           <p style={{
             fontSize: 13,

@@ -41,13 +41,7 @@ export default function App() {
         flexShrink: 0,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{
-            width: 28, height: 28, borderRadius: 8,
-            background: 'linear-gradient(135deg, var(--accent), #a855f7)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 14, fontWeight: 700, color: '#fff',
-          }}>V</div>
-          <span style={{ fontWeight: 600, fontSize: 15 }}>Text Vectorizer</span>
+          <span style={{ fontWeight: 800, fontSize: 22, background: 'linear-gradient(135deg, var(--accent), #a855f7)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>繋</span><span style={{ fontWeight: 400, fontSize: 14, color: 'var(--text-secondary)' }}>がっている。</span>
           {uploadResult && (
             <span style={{
               fontSize: 12, color: 'var(--text-tertiary)',
