@@ -25,18 +25,19 @@ export default function Upload({ onUpload, onLoadDemo, isUploading }: Props) {
 
   return (
     <div style={{
-      height: '100%',
+      minHeight: '100%',
       display: 'flex',
-      alignItems: 'center',
+      alignItems: 'flex-start',
       justifyContent: 'center',
-      padding: 40,
+      padding: '40px 16px 20px',
+      overflow: 'auto',
     }}>
       <div className="fade-in" style={{ width: '100%', maxWidth: 520 }}>
         <div
           {...getRootProps()}
           style={{
             width: '100%',
-            padding: '60px 40px',
+            padding: '28px 20px',
             borderRadius: 'var(--radius-lg)',
             border: `2px dashed ${isDragActive ? 'var(--accent)' : 'var(--border)'}`,
             background: isDragActive ? 'var(--accent-dim)' : 'var(--bg-secondary)',
@@ -48,34 +49,34 @@ export default function Upload({ onUpload, onLoadDemo, isUploading }: Props) {
           <input {...getInputProps()} />
 
           <div style={{
-            width: 56, height: 56, borderRadius: 14,
+            width: 48, height: 48, borderRadius: 12,
             background: 'var(--accent-dim)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            margin: '0 auto 20px',
+            margin: '0 auto 16px',
           }}>
             {isUploading ? (
-              <Loader2 size={24} color="var(--accent)" style={{ animation: 'spin 1s linear infinite' }} />
+              <Loader2 size={22} color="var(--accent)" style={{ animation: 'spin 1s linear infinite' }} />
             ) : isDragActive ? (
-              <FileSpreadsheet size={24} color="var(--accent)" />
+              <FileSpreadsheet size={22} color="var(--accent)" />
             ) : (
-              <UploadIcon size={24} color="var(--accent)" />
+              <UploadIcon size={22} color="var(--accent)" />
             )}
           </div>
 
-          <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>
+          <h2 style={{ fontSize: 17, fontWeight: 600, marginBottom: 6 }}>
             {isUploading ? 'Uploading...' : isDragActive ? 'Drop your file here' : 'Upload Excel File'}
           </h2>
-          <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+          <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
             {isUploading
               ? 'Reading your spreadsheet...'
               : 'Drag & drop an .xlsx file, or click to browse'}
           </p>
-          <p style={{ fontSize: 12, color: 'var(--text-tertiary)', marginTop: 16 }}>
+          <p style={{ fontSize: 11, color: 'var(--text-tertiary)', marginTop: 12 }}>
             Supports .xlsx and .xls files
           </p>
         </div>
 
-        <div style={{ textAlign: 'center', marginTop: 20 }}>
+        <div style={{ textAlign: 'center', marginTop: 16 }}>
           <span style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>or</span>
         </div>
 
@@ -84,14 +85,14 @@ export default function Upload({ onUpload, onLoadDemo, isUploading }: Props) {
           disabled={isUploading}
           style={{
             width: '100%',
-            marginTop: 12,
-            padding: '12px 20px',
+            marginTop: 10,
+            padding: '14px 20px',
             borderRadius: 'var(--radius-md)',
-            background: 'var(--bg-secondary)',
-            color: 'var(--text-secondary)',
+            background: 'var(--accent-dim)',
+            color: 'var(--accent)',
             fontSize: 14,
-            fontWeight: 500,
-            border: '1px solid var(--border)',
+            fontWeight: 600,
+            border: '1px solid var(--accent)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -99,20 +100,10 @@ export default function Upload({ onUpload, onLoadDemo, isUploading }: Props) {
             transition: 'all 0.15s ease',
             cursor: isUploading ? 'wait' : 'pointer',
           }}
-          onMouseEnter={e => {
-            e.currentTarget.style.background = 'var(--accent-dim)';
-            e.currentTarget.style.borderColor = 'var(--accent)';
-            e.currentTarget.style.color = 'var(--accent)';
-          }}
-          onMouseLeave={e => {
-            e.currentTarget.style.background = 'var(--bg-secondary)';
-            e.currentTarget.style.borderColor = 'var(--border)';
-            e.currentTarget.style.color = 'var(--text-secondary)';
-          }}
         >
           <Sparkles size={16} />
           Try with Demo Dataset
-          <span style={{ fontSize: 11, color: 'var(--text-tertiary)', marginLeft: 4 }}>
+          <span style={{ fontSize: 11, opacity: 0.7, marginLeft: 4 }}>
             75 texts, 5 topics
           </span>
         </button>
