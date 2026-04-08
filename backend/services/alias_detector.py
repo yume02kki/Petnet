@@ -13,12 +13,18 @@ def detect_aliases(
     max_results: int = 50,
 ) -> list[dict]:
     """
-    Detect words used as codenames/aliases using two signals:
-    1. Context gap: high contextual similarity but low word-level similarity
-    2. Substitution test: replacing word A with word B in A's sentences
-       produces embeddings closer to the cluster centroid
+    Detect words used as codenames/aliases using masked context embeddings.
 
-    This catches codenames like "pony" used to mean "calico cat".
+    Approach:
+    1. For each candidate word, mask it out of its sentences (replace with
+       "something") and embed the masked sentences. This captures pure
+       surrounding context without the word's own semantic baggage.
+    2. Compare masked context embeddings between word pairs — high similarity
+       means they appear in interchangeable contexts.
+    3. Compare against word-level embeddings — low word similarity + high
+       context similarity = likely codename/alias.
+    4. Substitution test as confirmation: replacing word A with word B in
+       A's sentences should move embeddings closer to the cluster centroid.
     """
     unique_labels = [l for l in sorted(set(labels)) if l != -1]
     if not unique_labels:
@@ -54,11 +60,30 @@ def detect_aliases(
     if len(candidate_words) < 2:
         return []
 
-    # Context embeddings (average sentence embedding per word)
+    # Masked context embeddings: replace word with "something", embed, average.
+    # Batch all masked sentences into one generate_embeddings() call.
+    all_masked_sents = []
+    word_slice_map = {}
+    offset = 0
+    for word in candidate_words:
+        indices = word_text_indices[word][:10]
+        original_sents = [texts[idx] for idx in indices]
+        masked = _mask_word_in_texts(original_sents, word)
+        all_masked_sents.extend(masked)
+        word_slice_map[word] = (offset, offset + len(masked))
+        offset += len(masked)
+
+    if not all_masked_sents:
+        return []
+
+    all_masked_embs = generate_embeddings(all_masked_sents)
+
     word_ctx_emb = {}
     for word in candidate_words:
-        indices = word_text_indices[word]
-        avg = embeddings[indices].mean(axis=0)
+        if word not in word_slice_map:
+            continue
+        start, end = word_slice_map[word]
+        avg = all_masked_embs[start:end].mean(axis=0)
         norm = np.linalg.norm(avg)
         if norm > 0:
             word_ctx_emb[word] = avg / norm
@@ -101,7 +126,7 @@ def detect_aliases(
 
             if gap < 0.05:
                 continue
-            if ctx_sim < 0.3:
+            if ctx_sim < 0.4:
                 continue
 
             pair_key = tuple(sorted([w1, w2]))
@@ -123,8 +148,8 @@ def detect_aliases(
                 "_word_sim": word_sim,
             })
 
-    # Substitution boost: for top candidates, test if replacing w1 with w2
-    # in w1's sentences makes them more similar to the cluster centroid
+    # Substitution boost: replacing w1 with w2 in w1's sentences
+    # should move embeddings closer to the cluster centroid
     for pair in alias_pairs:
         w1, w2 = pair["word_a"], pair["word_b"]
         boost = 0.0
@@ -138,7 +163,6 @@ def detect_aliases(
             substituted = [re.sub(r'\b' + re.escape(wa) + r'\b', wb, t, flags=re.IGNORECASE)
                           for t in original_texts]
 
-            # Only test if substitution actually changed something
             changed = [s for s, o in zip(substituted, original_texts) if s != o]
             if not changed:
                 continue
@@ -146,24 +170,21 @@ def detect_aliases(
             sub_embs = generate_embeddings(changed)
             orig_embs = embeddings[indices[:len(changed)]]
 
-            # Compare to shared cluster centroids
             for cl in pair["shared_clusters"]:
                 if cl in cluster_centroids:
                     centroid = cluster_centroids[cl]
                     orig_sim = float(np.mean([e @ centroid for e in orig_embs]))
                     sub_sim = float(np.mean([e @ centroid for e in sub_embs]))
-                    # If substituted version is closer to centroid, it's a codename
                     boost += max(0, sub_sim - orig_sim)
 
         pair["_boost"] = boost
 
-    # Final score: gap + substitution boost
+    # Final score: masked gap is primary, substitution boost is confirmation
     for pair in alias_pairs:
-        pair["_score"] = pair["_gap"] + pair["_boost"] * 3.0
+        pair["_score"] = pair["_gap"] * 2.0 + pair["_boost"] * 1.0
 
     alias_pairs.sort(key=lambda x: x["_score"], reverse=True)
 
-    # Clean up internal fields
     for pair in alias_pairs:
         del pair["_gap"]
         del pair["_word_sim"]
@@ -171,6 +192,12 @@ def detect_aliases(
         del pair["_score"]
 
     return alias_pairs[:max_results]
+
+
+def _mask_word_in_texts(texts: list[str], word: str, replacement: str = "something") -> list[str]:
+    """Replace all occurrences of word with a neutral token."""
+    pattern = re.compile(r'\b' + re.escape(word) + r'\b', re.IGNORECASE)
+    return [pattern.sub(replacement, t) for t in texts]
 
 
 def _share_stem(w1: str, w2: str) -> bool:
