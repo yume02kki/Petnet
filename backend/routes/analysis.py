@@ -8,7 +8,7 @@ from models.schemas import AnalyzeRequest, AnalyzeResponse
 from services.vectorizer import generate_embeddings
 from services.clustering import cluster_embeddings, extract_cluster_keywords
 from services.text_processing import clean_texts
-from services.alias_detector import detect_aliases
+
 import pandas as pd
 import numpy as np
 import umap
@@ -124,9 +124,6 @@ async def _run_pipeline(job_id: str, file_path: str, request: AnalyzeRequest):
         _jobs[job_id].update(stage="Extracting keywords", progress=85)
         cluster_infos = await asyncio.to_thread(extract_cluster_keywords, cleaned, labels)
 
-        _jobs[job_id].update(stage="Detecting aliases", progress=92)
-        alias_pairs = await asyncio.to_thread(detect_aliases, cleaned, labels, embeddings)
-
         metadata_cols = [c for c in request.metadata_columns if c in df.columns]
 
         points = []
@@ -154,7 +151,6 @@ async def _run_pipeline(job_id: str, file_path: str, request: AnalyzeRequest):
         result = AnalyzeResponse(
             points=points,
             clusters=cluster_infos,
-            aliases=alias_pairs,
             total_points=len(points),
             noise_count=noise_count,
         )

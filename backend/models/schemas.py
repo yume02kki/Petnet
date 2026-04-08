@@ -27,18 +27,8 @@ class ClusterInfo(BaseModel):
     keywords: list[str]
 
 
-class AliasPair(BaseModel):
-    word_a: str
-    word_b: str
-    similarity: float
-    shared_clusters: list[int]
-    sample_contexts_a: list[str]
-    sample_contexts_b: list[str]
-
-
 class AnalyzeResponse(BaseModel):
     points: list[PointData]
     clusters: list[ClusterInfo]
-    aliases: list[AliasPair] = []
     total_points: int
     noise_count: int

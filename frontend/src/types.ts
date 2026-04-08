@@ -28,19 +28,9 @@ export interface ClusterInfo {
   keywords: string[];
 }
 
-export interface AliasPair {
-  word_a: string;
-  word_b: string;
-  similarity: number;
-  shared_clusters: number[];
-  sample_contexts_a: string[];
-  sample_contexts_b: string[];
-}
-
 export interface AnalyzeResult {
   points: PointData[];
   clusters: ClusterInfo[];
-  aliases: AliasPair[];
   total_points: number;
   noise_count: number;
 }
