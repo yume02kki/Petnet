@@ -1,13 +1,16 @@
+import os
 from sentence_transformers import SentenceTransformer
 import numpy as np
 
 _model = None
 
+MODEL_DIR = os.path.join(os.path.dirname(__file__), "..", "models", "all-MiniLM-L6-v2")
+
 
 def _get_model() -> SentenceTransformer:
     global _model
     if _model is None:
-        _model = SentenceTransformer("all-MiniLM-L6-v2")
+        _model = SentenceTransformer(MODEL_DIR)
     return _model
 
 
