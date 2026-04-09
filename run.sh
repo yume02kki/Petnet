@@ -25,9 +25,15 @@ echo "=== Setting up backend ==="
 cd "$ROOT/backend"
 
 if [ ! -d "venv" ]; then
-    python3 -m venv venv
+    if ! python3 -m venv venv 2>/dev/null; then
+        rm -rf venv
+        python3 -m virtualenv venv
+    fi
+    source venv/bin/activate
+    pip install --upgrade pip -q
+else
+    source venv/bin/activate
 fi
-source venv/bin/activate
 pip install -q -r requirements.txt
 
 mkdir -p uploads
